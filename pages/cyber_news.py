@@ -22,21 +22,58 @@ def fetch_cybersecurity_news():
         return []
 
 def show():
-    st.title("🌐 Cybersecurity News")
+    # Page Title
+    st.markdown(
+        "<h1 style='text-align: center; color: #3498db;'>🌐 Cybersecurity News</h1>", 
+        unsafe_allow_html=True
+    )
 
-    st.markdown("Fetching latest cybersecurity news...")
+    st.markdown("<h4 style='text-align: center;'>Get the latest cybersecurity updates!</h4>", unsafe_allow_html=True)
 
-    if st.button("Fetch News"):
+    # Button to Fetch News
+    if st.button("Fetch Latest News 🔄"):
         news_articles = fetch_cybersecurity_news()
-        
+
         if news_articles:
-            st.info("📰 Latest Cyber News:")
+            st.markdown("<h2 style='text-align: center;'>📰 Latest Cyber News</h2>", unsafe_allow_html=True)
+
             for article in news_articles[:10]:  # Show top 10 articles
-                st.subheader(article["title"])
-                st.write(article["description"])
-                st.write(f"🔗 [Read More]({article['url']})")
-                if article.get("urlToImage"):
-                    st.image(article["urlToImage"], width=500)
-                st.markdown("---")
+                # News Card Layout
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color: #f8f9fa;
+                        border-radius: 12px;
+                        padding: 20px;
+                        margin: 10px 0;
+                        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        width: 100%;
+                    ">
+                        <div style="flex: 1;">
+                            <h3 style="color: #2c3e50;">{article['title']}</h3>
+                            <p>{article['description']}</p>
+                            <a href="{article['url']}" target="_blank" style="
+                                display: inline-block;
+                                padding: 10px 15px;
+                                margin-top: 10px;
+                                text-decoration: none;
+                                background-color: #3498db;
+                                color: white;
+                                border-radius: 5px;
+                            ">🔗 Read More</a>
+                        </div>
+                        <div>
+                            <img src="{article['urlToImage']}" width="200" style="border-radius: 8px; margin-left: 20px;" />
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
         else:
             st.warning("⚠️ No cybersecurity news found!")
+
+if __name__ == "__main__":
+    show()
