@@ -1,6 +1,6 @@
 import streamlit as st
 from components.sidebar import load_sidebar
-from pages import home, text_analysis, image_analysis, conversational_ai, reports, explainability, cyber_news
+from pages import home, text_analysis, image_analysis, conversational_ai, explainability, cyber_news
 
 # Sidebar Navigation
 PAGES = {
@@ -8,7 +8,6 @@ PAGES = {
     "📄 Text Analysis": text_analysis,
     "🖼️ Image Analysis": image_analysis,
     "🤖 Conversational AI": conversational_ai,
-    "📊 Reports & Summarization": reports,
     "🧠 Explainability": explainability,
     "🌐 Cyber News": cyber_news,
 }
