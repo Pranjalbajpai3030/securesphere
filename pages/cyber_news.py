@@ -76,8 +76,4 @@ def show():
             st.warning("⚠️ No cybersecurity news found!")
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     show()
-=======
-    show()
->>>>>>> 44bbffab3baa539e012573a4889935a75e8691ea

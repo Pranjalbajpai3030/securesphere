@@ -2,20 +2,28 @@ import streamlit as st
 from PIL import Image
 import google.generativeai as genai
 from dotenv import load_dotenv
-import os
 import io
+import os
+import base64
 
 # Load environment variables
 load_dotenv()
-GENAI_API_KEY = os.getenv("GEMINIKEY")
+GENAI_API_KEY = st.secrets["GEMINIKEY"]
 
 if not GENAI_API_KEY:
-    st.error("❌ API Key not found. Set GEMINIKEY in .env file.")
+    st.error("API Key not found. Set GEMINIKEY in Streamlit Secrets.")
     st.stop()
 
 # Configure Gemini API
 genai.configure(api_key=GENAI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
+
+# Sample images (Base64 encoded placeholders)
+SAMPLE_IMAGES = {
+    "Phishing Email Screenshot": "./assets/sample_phishing.png",
+    "Malware Alert Screenshot": "./assets/sample_malware.png",
+    "Suspicious System Logs": "./assets/sample_logs.png"
+}
 
 def analyze_image_with_gemini(image_bytes):
     """ Sends image to Gemini API for security analysis. """
@@ -37,51 +45,34 @@ def analyze_image_with_gemini(image_bytes):
         response = model.generate_content([prompt, image_part])
         return response.text if hasattr(response, "text") else "No valid response received."
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return f"Error: {str(e)}"
 
 def show():
-    # Cool Header with Centered Title
-    st.markdown("""
-        <div style="text-align: center;">
-            <h1 style="color: #3498db;">🖼️ Image-based Security Analysis</h1>
-            <p style="font-size: 16px;">Upload an image (email screenshot, system logs, or suspicious files) for security analysis.</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.title("🖼 Image-based Security Analysis")
+    st.markdown("Upload an image (email screenshot, system logs, or suspicious file) for security analysis.")
 
-    # File Upload Section
-    uploaded_file = st.file_uploader("📂 **Upload an Image (PNG, JPG, JPEG)**", type=["png", "jpg", "jpeg"])
+    # Dropdown for sample images
+    sample_choice = st.selectbox("🔽 Choose a sample security image (Optional)", ["None"] + list(SAMPLE_IMAGES.keys()))
 
-    if uploaded_file is not None:
-        # Display Uploaded Image Centered
-        st.markdown("<h3 style='text-align: center;'>📷 Uploaded Image</h3>", unsafe_allow_html=True)
-        st.image(uploaded_file, caption="Preview", use_column_width=True)
+    uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
 
-        # Analyze Button with Spinner
-        if st.button("🚀 Analyze Image"):
-            with st.spinner("🔍 Analyzing... Please wait"):
+    # Load sample image if selected
+    if sample_choice != "None":
+        image_path = SAMPLE_IMAGES[sample_choice]
+        uploaded_file = open(image_path, "rb")
+
+    if uploaded_file:
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Uploaded Image", use_column_width=True)
+
+        if st.button("Analyze Image"):
+            with st.spinner("Analyzing..."):
                 image_bytes = io.BytesIO()
-                img = Image.open(uploaded_file)
                 img.save(image_bytes, format="PNG")  # Convert image to bytes
                 analysis_result = analyze_image_with_gemini(image_bytes)
+                
+            st.subheader("🔍 Analysis Result:")
+            st.write(analysis_result)
 
-            # Display Analysis Result in a Scrollable Styled Box
-            st.markdown("""
-                <div style="
-                    background-color: #2d2d30; 
-                    padding: 15px; 
-                    border-radius: 10px; 
-                    border: 2px solid #3498db;
-                    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-                    max-height: 400px; 
-                    overflow-y: auto;
-                    white-space: pre-wrap;
-                    color: white;
-                    font-family: monospace;
-                ">
-                    <h3 style="color: #ffffff;">🔍 Analysis Result:</h3>
-                    <p style="color: white;">{}</p>
-                </div>
-            """.format(analysis_result), unsafe_allow_html=True)
-
-if __name__ == "__main__":
+if _name_ == "_main_":
     show()
